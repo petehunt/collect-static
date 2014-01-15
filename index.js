@@ -1,9 +1,8 @@
 /*
 current assumptions:
 
-- static assets must all reside in a folder called static at the root of the
+  static assets must all reside in a folder called statics at the root of the
   component. No nested hierarchy for now bc name clash (TODO: this).
-- collected stuff goes into top-level component's build/static
 
   TODO: first point is a problem. Need to establish now to recognize a component
   folder. Simplest way is to force people to prefix their component with
@@ -23,7 +22,10 @@ var assert = require('assert');
 assert = function() {};assert.deepEqual=function() {};
 function _getStatics(root) {
   var files = glob.sync(path.join(root, 'node_modules/*'));
-  var currStatics = glob.sync(path.join(root, 'static/*'));
+  // note that the final output is stored in node_modules/statics/, but nowwhere
+  // in the recursive search will such a pattern be possible; therefore, no need
+  // to worry about infinite recursion
+  var currStatics = glob.sync(path.join(root, 'statics/*'));
   if (!files.length) return currStatics;
 
   return files.reduce(function(accum, filePath) {
@@ -35,48 +37,48 @@ function _getStatics(root) {
 assert.deepEqual(
   _getStatics('./tests'),
   [
-    'tests/static/spinner.css',
-    'tests/node_modules/spinner2/static/spinner.css',
-    'tests/node_modules/spinner2/static/spinner.png',
-    'tests/node_modules/treeview/static/treeview.css',
-    'tests/node_modules/treeview/static/treeview.png',
-    'tests/node_modules/treeview/node_modules/react-table/static/table.css'
+    'tests/statics/spinner.css',
+    'tests/node_modules/spinner2/statics/spinner.css',
+    'tests/node_modules/spinner2/statics/spinner.png',
+    'tests/node_modules/treeview/statics/treeview.css',
+    'tests/node_modules/treeview/statics/treeview.png',
+    'tests/node_modules/treeview/node_modules/react-table/statics/table.css'
   ]
 );
 assert(_getStatics('./tests').length === 6);
 
 function _extractModuleNameFromPath(modulePath) {
   var relativeModulePath = path.relative(process.cwd(), modulePath);
-  var matchedIndex = relativeModulePath.lastIndexOf('static/');
+  var matchedIndex = relativeModulePath.lastIndexOf('statics/');
   var cutPath = relativeModulePath.slice(matchedIndex);
-  var asd = /(.+)\/static\/.+\..+$/.exec(relativeModulePath);
+  var asd = /(.+)\/statics\/.+\..+$/.exec(relativeModulePath);
   return asd
     ? asd[1].slice(asd[1].lastIndexOf('/') + 1)
     : path.basename(process.cwd()); // root folder
   // TODO: no need to namespace the root folder's assets.
 }
 
-assert(_extractModuleNameFromPath('static/spinner.css') === 'collect-statics');
-assert(_extractModuleNameFromPath('./static/spinner.css') === 'collect-statics');
-assert(_extractModuleNameFromPath('tests/static/spinner.css') === 'tests');
-assert(_extractModuleNameFromPath('tests/node_modules/spinner2/static/spinner.css') === 'spinner2');
-assert(_extractModuleNameFromPath('tests/node_modules/spinner2/static/spinner.png') === 'spinner2');
-assert(_extractModuleNameFromPath('tests/node_modules/treeview/static/treeview.css') === 'treeview');
-assert(_extractModuleNameFromPath('tests/node_modules/treeview/static/treeview.png') === 'treeview');
-assert(_extractModuleNameFromPath('tests/node_modules/treeview/node_modules/react-table/static/table.css') === 'react-table');
+assert(_extractModuleNameFromPath('statics/spinner.css') === 'collect-statics');
+assert(_extractModuleNameFromPath('./statics/spinner.css') === 'collect-statics');
+assert(_extractModuleNameFromPath('tests/statics/spinner.css') === 'tests');
+assert(_extractModuleNameFromPath('tests/node_modules/spinner2/statics/spinner.css') === 'spinner2');
+assert(_extractModuleNameFromPath('tests/node_modules/spinner2/statics/spinner.png') === 'spinner2');
+assert(_extractModuleNameFromPath('tests/node_modules/treeview/statics/treeview.css') === 'treeview');
+assert(_extractModuleNameFromPath('tests/node_modules/treeview/statics/treeview.png') === 'treeview');
+assert(_extractModuleNameFromPath('tests/node_modules/treeview/node_modules/react-table/statics/table.css') === 'react-table');
 
 function _extractAssetNameFromPath(assetPath) {
   return path.basename(assetPath);
 }
 
-assert(_extractAssetNameFromPath('static/spinner.css') === 'spinner.css');
-assert(_extractAssetNameFromPath('./static/spinner.css') === 'spinner.css');
-assert(_extractAssetNameFromPath('tests/static/spinner.css') === 'spinner.css');
-assert(_extractAssetNameFromPath('tests/node_modules/spinner2/static/spinner.css') === 'spinner.css');
-assert(_extractAssetNameFromPath('tests/node_modules/spinner2/static/spinner.png') === 'spinner.png');
-assert(_extractAssetNameFromPath('tests/node_modules/treeview/static/treeview.css') === 'treeview.css');
-assert(_extractAssetNameFromPath('tests/node_modules/treeview/static/treeview.png') === 'treeview.png');
-assert(_extractAssetNameFromPath('tests/node_modules/treeview/node_modules/react-table/static/table.css') === 'table.css');
+assert(_extractAssetNameFromPath('statics/spinner.css') === 'spinner.css');
+assert(_extractAssetNameFromPath('./statics/spinner.css') === 'spinner.css');
+assert(_extractAssetNameFromPath('tests/statics/spinner.css') === 'spinner.css');
+assert(_extractAssetNameFromPath('tests/node_modules/spinner2/statics/spinner.css') === 'spinner.css');
+assert(_extractAssetNameFromPath('tests/node_modules/spinner2/statics/spinner.png') === 'spinner.png');
+assert(_extractAssetNameFromPath('tests/node_modules/treeview/statics/treeview.css') === 'treeview.css');
+assert(_extractAssetNameFromPath('tests/node_modules/treeview/statics/treeview.png') === 'treeview.png');
+assert(_extractAssetNameFromPath('tests/node_modules/treeview/node_modules/react-table/statics/table.css') === 'table.css');
 
 // TODO: anything else?
 function _namespaceCSSUrls(src, namespace) {
@@ -102,9 +104,10 @@ function _rewriteCSSByNamespacing(cssPath, namespace) {
 // which is troublesome especially if the two versions are different. `npm
 // dedupe` won't help here; we'll see...
 function collectStatic(entryPoint, next) {
-  var destFolder = path.join(entryPoint, 'build/static');
+  var destFolder = path.join(entryPoint, 'node_modules/statics');
   fs.removeSync(destFolder);
   fs.mkdirpSync(destFolder);
+
   _getStatics(entryPoint).forEach(function(staticPath) {
     var moduleName = _extractModuleNameFromPath(staticPath);
     var staticName = _extractAssetNameFromPath(staticPath);

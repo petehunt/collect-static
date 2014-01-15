@@ -1,5 +1,5 @@
 {
-  "name": "collect-static",
+  "name": "collect-statics",
   "version": "0.0.0",
   "description": "Collect static assets in one place, with namespacing.",
   "main": "index.js",
@@ -15,14 +15,14 @@
     "jasmine-node": "~1.12.0"
   },
   "scripts": {
-    "test": "jasmine-node --autotest test/collect-static.spec.js"
+    "test": "jasmine-node --autotest test/collect-statics.spec.js"
   },
   "bin": {
-    "collect-static": "bin/collect-static.js"
+    "collect-statics": "bin/collect-statics.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/petehunt/collect-static"
+    "url": "https://github.com/petehunt/collect-statics"
   },
   "keywords": [
     "asset",
@@ -45,6 +45,6 @@
     "node": ">=0.10.0"
   },
   "bugs": {
-    "url": "https://github.com/petehunt/collect-static/issues"
+    "url": "https://github.com/petehunt/collect-statics/issues"
   }
 }

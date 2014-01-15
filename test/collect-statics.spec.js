@@ -4,15 +4,16 @@ var glob = require('glob');
 var mimetype = require('mimetype');
 var path = require('path');
 
-describe('statics', function() {
+describe('collect-static', function() {
   var expectedFiles;
   var actualFiles;
   beforeEach(function() {
     expect(function() {
+      // TODO: still need to check __dirname, cwd(), entryPoint (collect-static) etc.
       collectStatic(__dirname);
     }).not.toThrow();
     expectedFiles = glob.sync(path.join(__dirname, 'expected/*'));
-    actualFiles = glob.sync(path.join(__dirname, 'build/static/*'));
+    actualFiles = glob.sync(path.join(__dirname, 'node_modules/statics/*'));
   });
 
   it('should have brought over all the assets and namespaced them', function() {
@@ -33,7 +34,7 @@ describe('statics', function() {
       })
       .forEach(function(expectedFile) {
         var destFilePath = path.join(
-          __dirname, 'build/static', path.basename(expectedFile)
+          __dirname, 'node_modules/statics', path.basename(expectedFile)
         );
 
         expect(
