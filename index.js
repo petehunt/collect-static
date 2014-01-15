@@ -48,6 +48,7 @@ assert.deepEqual(
 assert(_getStatics('./tests').length === 6);
 
 function _extractModuleNameFromPath(modulePath) {
+  // TODO: check if using cwd() is correct
   var relativeModulePath = path.relative(process.cwd(), modulePath);
   var matchedIndex = relativeModulePath.lastIndexOf('statics/');
   var cutPath = relativeModulePath.slice(matchedIndex);
@@ -83,7 +84,7 @@ assert(_extractAssetNameFromPath('tests/node_modules/treeview/node_modules/react
 // TODO: anything else?
 function _namespaceCSSUrls(src, namespace) {
   return rework(src).use(rework.url(function(url) {
-    return namespace + '_' + url;
+    return './' + namespace + '_' + url;
   })).toString();
 }
 
@@ -100,6 +101,18 @@ function _rewriteCSSByNamespacing(cssPath, namespace) {
   fs.writeFileSync(cssPath, newSrc2, {encoding: 'utf8'});
 }
 
+function _bringOverImgsAndCreateRequirableLink(source, dest) {
+  // img copying too expensive; symlink them
+  fs.symlinkSync(path.resolve(source), dest);
+  // now create the `require`-able .js that exposes a link
+  // TODO: pluginfy this
+  // ./img.png
+  // TODO: path not correct but I need sleep
+  var relativeDest = '.' + dest.slice(dest.lastIndexOf('/'));
+  var fileContent = 'module.export = \'' + relativeDest + '\';\n';
+  fs.writeFileSync(dest + '.js', fileContent, {encoding: 'utf8'});
+}
+
 // TODO: in the end, it's possible that 2 components require react-spinner,
 // which is troublesome especially if the two versions are different. `npm
 // dedupe` won't help here; we'll see...
@@ -113,13 +126,15 @@ function collectStatic(entryPoint, next) {
     var staticName = _extractAssetNameFromPath(staticPath);
 
     var destPath = path.join(destFolder,  moduleName + '_' + staticName);
+    // append .js extension to css and imgs, so that they can be `require`d
+    // super hack!
     if (mimetype.lookup(staticPath) === 'text/css') {
-      // format: react-spinner_bar.css
-      fs.copySync(staticPath, destPath);
-      _rewriteCSSByNamespacing(destPath, moduleName);
+      // format: react-spinner_bar.css.js
+      var jsSuffixedDestPath = destPath + '.js'
+      fs.copySync(staticPath, jsSuffixedDestPath);
+      _rewriteCSSByNamespacing(jsSuffixedDestPath, moduleName);
     } else {
-      // img copying too expensive; symlink them
-      fs.symlinkSync(path.resolve(staticPath), destPath);
+      _bringOverImgsAndCreateRequirableLink(staticPath, destPath);
     }
   });
 

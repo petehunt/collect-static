@@ -4,6 +4,14 @@ var glob = require('glob');
 var mimetype = require('mimetype');
 var path = require('path');
 
+function expectEqualFileContent(file1, file2) {
+  expect(
+    fs.readFileSync(file1, {encoding: 'utf8'}).trim()
+  ).toEqual(
+    fs.readFileSync(file2, {encoding: 'utf8'}).trim()
+  );
+}
+
 describe('collect-static', function() {
   var expectedFiles;
   var actualFiles;
@@ -18,7 +26,9 @@ describe('collect-static', function() {
 
   it('should have brought over all the assets and namespaced them', function() {
     // avoid false positives
-    expect(expectedFiles.length > 0).toBeTruthy();
+    expect(expectedFiles.length).toBeGreaterThan(0);
+    expect(expectedFiles.length).toBe(actualFiles.length);
+
     expectedFiles.forEach(function(expectedFile) {
       expect(actualFiles.some(function(actualFile) {
         return path.basename(actualFile) === path.basename(expectedFile);
@@ -30,18 +40,28 @@ describe('collect-static', function() {
     expectedFiles
       .filter(function(expectedFile) {
         // exclude images
-        return mimetype.lookup(expectedFile) === 'text/css';
+        // unlike in the script, cannot use mimetype lookup here as the file
+        // extension's been appended the .js
+        return /\.css\.js$/.test(expectedFile);
       })
       .forEach(function(expectedFile) {
         var destFilePath = path.join(
           __dirname, 'node_modules/statics', path.basename(expectedFile)
         );
-
-        expect(
-          fs.readFileSync(expectedFile, {encoding: 'utf8'}).trim()
-        ).toEqual(
-          fs.readFileSync(destFilePath, {encoding: 'utf8'}).trim()
-        );
+        expectEqualFileContent(expectedFile, destFilePath);
     });
+  });
+
+  it('should have created the images .js exported urls correctly', function() {
+    expectedFiles
+      .filter(function(expectedFile) {
+        return /\.png\.js$/.test(expectedFile);
+      })
+      .forEach(function(expectedFile) {
+        var destFilePath = path.join(
+          __dirname, 'node_modules/statics', path.basename(expectedFile)
+        );
+        expectEqualFileContent(expectedFile, destFilePath);
+      });
   });
 });
