@@ -1,0 +1,50 @@
+{
+  "name": "collect-static",
+  "version": "0.0.0",
+  "description": "Collect static assets in one place, with namespacing.",
+  "main": "index.js",
+  "dependencies": {
+    "glob": "~3.2.7",
+    "optimist": "~0.6.0",
+    "rework": "~0.20.2",
+    "rework-namespace": "git+https://github.com/chenglou/rework-namespace.git",
+    "mimetype": "0.0.5",
+    "fs-extra": "~0.8.1"
+  },
+  "devDependencies": {
+    "jasmine-node": "~1.12.0"
+  },
+  "scripts": {
+    "test": "jasmine-node --autotest test/collect-static.spec.js"
+  },
+  "bin": {
+    "collect-static": "bin/collect-static.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/petehunt/collect-static"
+  },
+  "keywords": [
+    "asset",
+    "assets",
+    "css",
+    "namespace",
+    "npm",
+    "packaging",
+    "react",
+    "static",
+    "statics",
+    "style",
+    "styles",
+    "image",
+    "images"
+  ],
+  "author": "Pete Hunt",
+  "license": "Apache 2",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "bugs": {
+    "url": "https://github.com/petehunt/collect-static/issues"
+  }
+}
