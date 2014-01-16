@@ -147,8 +147,11 @@ function _getRequirableCSSModuleSrc(src, namespacedSrc) {
       // FIXME: this is not correct, still need to add something to cssObj
       if (!rule.selectors || !rule.selectors.length) return;
 
-      // FIXME: check why selectors is in array
-      namespacedSelectors = namespacedSelectors.concat(rule.selectors);
+      // TODO: currently only accepts a single selector, either an id or a class
+      // or else className={bla['.a .b']} wouldn't make sense
+      // FIXME: check why selectors is in array. Only 1 item
+      var selectedWithClassDotOrIdHashStripped = rule.selectors[0].slice(1);
+      namespacedSelectors.push(selectedWithClassDotOrIdHashStripped);
     });
   });
 
