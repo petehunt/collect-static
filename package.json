@@ -9,7 +9,8 @@
     "rework": "~0.20.2",
     "rework-namespace": "git+https://github.com/chenglou/rework-namespace.git",
     "mimetype": "0.0.5",
-    "fs-extra": "~0.8.1"
+    "fs-extra": "~0.8.1",
+    "lodash.zipobject": "~2.4.1"
   },
   "devDependencies": {
     "jasmine-node": "~1.12.0"
