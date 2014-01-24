@@ -1,3 +1,4 @@
+var browserify = require('browserify');
 var falafel = require('falafel');
 var fs = require('fs-extra');
 var mimetype = require('mimetype');
@@ -7,7 +8,7 @@ var reworkNamespace = require('rework-namespace');
 var through = require('through');
 var zipObject = require('lodash.zipobject');
 
-var destFolderPath = './build';
+var assetOutputPath = './build';
 
 function isCSS(filePath) {
   return mimetype.lookup(filePath) === 'text/css';
@@ -47,9 +48,9 @@ function getAssetNameFromAssetPath(filePath) {
 function getAbsNamespacedDestPathForAsset(filePath) {
   // TODO: this is the pluggable part for image urls
   // TODO: bla no folder creation here
-  fs.mkdirpSync(destFolderPath);
+  fs.mkdirpSync(assetOutputPath);
   return path.join(
-    path.resolve(destFolderPath),
+    path.resolve(assetOutputPath),
     getNamespaceFromAssetPath(filePath) +
     getAssetNameFromAssetPath(filePath)
   );
@@ -192,4 +193,18 @@ function staticify(filePath, a, b) {
   });
 }
 
-module.exports = staticify;
+module.exports = function(entryPath, outputJSPath, pAssetOutputPath, done) {
+  // pAssetOutputPath defaults to ./build
+  if (typeof pAssetOutputPath === 'function') {
+    done = pAssetOutputPath;
+    pAssetOutputPath = './build'
+  }
+  assetOutputPath = pAssetOutputPath;
+
+  // TODO: errorify
+  var b = browserify(entryPath);
+  b.transform({global: true}, staticify);
+  b.bundle()
+    .pipe(fs.createWriteStream(outputJSPath))
+    .on('finish', done);
+};

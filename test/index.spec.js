@@ -1,7 +1,6 @@
 var collectStatic = require('../');
 
 var assert = require('assert');
-var exec = require('child_process').exec;
 var fs = require('fs-extra');
 var glob = require('glob');
 
@@ -20,23 +19,23 @@ describe('collect-static', function() {
   beforeEach(function(done) {
     // I dun goofed. No way to specify output dir here... yet! So now they're in
     // cwd, which is root dir
-    fs.removeSync('build');
-    fs.removeSync('test/out.js');
+    fs.removeSync('./build');
+    fs.removeSync('./test/out.js');
 
     var result;
-    exec('browserify -g collect-statics test/fixture/index.js > test/out.js', function(err) {
+    collectStatic('./test/fixture/index.js', './test/out.js', function(err) {
       if (err) return done(err);
       done();
     });
   });
 
   afterEach(function() {
-    fs.removeSync('build');
-    fs.removeSync('test/out.js');
+    fs.removeSync('./build');
+    fs.removeSync('./test/out.js');
   });
 
   it('should produce in actual the identical browserified output', function() {
-    expectEqualFileContent('test/fixture/fixture.js', 'test/out.js');
+    expectEqualFileContent('./test/fixture/fixture.js', './test/out.js');
   });
 
   it('should have collected the statics and namespaced the files', function() {
