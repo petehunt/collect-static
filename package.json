@@ -1,29 +1,32 @@
 {
-  "name": "collect-statics",
+  "name": "collect-static",
   "version": "0.0.0",
   "description": "Collect static assets in one place, with namespacing.",
   "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "dependencies": {
-    "glob": "~3.2.7",
-    "optimist": "~0.6.0",
+    "falafel": "~0.3.1",
+    "fs-extra": "~0.8.1",
+    "glob": "~3.2.8",
+    "lodash.zipobject": "~2.4.1",
+    "mimetype": "~0.0.5",
     "rework": "~0.20.2",
     "rework-namespace": "git+https://github.com/chenglou/rework-namespace.git",
-    "mimetype": "0.0.5",
-    "fs-extra": "~0.8.1",
-    "lodash.zipobject": "~2.4.1"
+    "through": "~2.3.4"
   },
   "devDependencies": {
-    "jasmine-node": "~1.12.0"
+    "browserify": "~3.24.1",
+    "glob": "~3.2.7",
+    "mocha": "~1.17.1"
   },
   "scripts": {
-    "test": "jasmine-node --autotest test/collect-statics.spec.js"
-  },
-  "bin": {
-    "collect-statics": "bin/collect-statics.js"
+    "test": "mocha --watch test/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/petehunt/collect-statics"
+    "url": "git://github.com/petehunt/collect-static.git"
   },
   "keywords": [
     "asset",
@@ -40,12 +43,11 @@
     "image",
     "images"
   ],
+  "author": "",
   "author": "Pete Hunt",
   "license": "Apache 2",
-  "engines": {
-    "node": ">=0.10.0"
-  },
   "bugs": {
-    "url": "https://github.com/petehunt/collect-statics/issues"
-  }
+    "url": "https://github.com/petehunt/collect-static/issues"
+  },
+  "homepage": "https://github.com/petehunt/collect-static"
 }
