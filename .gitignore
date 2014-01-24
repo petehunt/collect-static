@@ -1,3 +1,5 @@
 /node_modules
 test/actual
 .DS_Store
+test/build
+test/out.js

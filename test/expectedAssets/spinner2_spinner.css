@@ -1,0 +1,5 @@
+/*Another spinner. No collision.*/
+
+.spinner2_header {
+  background: url("./spinner2_spinner.png");
+}

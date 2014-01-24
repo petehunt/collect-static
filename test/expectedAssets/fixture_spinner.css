@@ -1,0 +1,9 @@
+/*Component's own css.*/
+
+#fixture_header {
+  color: blue;
+}
+
+.fixture_header {
+  width: 10px;
+}
